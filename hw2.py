@@ -94,9 +94,8 @@ def unsharp_masking_s(img):
     input = img.copy().astype(np.int32)
     img_blur = cv2.GaussianBlur(img, (31, 31), 0, 0 ) #卷積
     sharp = input - img_blur
-    A = 1
     k = 1
-    sharp = A*input + k*sharp
+    sharp = input + k*sharp
     sharp = np.uint8(np.clip(sharp,0,255))
     return sharp
 
@@ -130,14 +129,14 @@ def high_boost_s(img):
     input = img.copy().astype(np.int32)
     img_blur = cv2.GaussianBlur(img, (31, 31), 0, 0 ) #卷積
     sharp = input - img_blur
-    A = 1.5
-    sharp = A*input + sharp
+    A = 2.5
+    sharp = (A-1)*input + sharp
     sharp = np.uint8(np.clip(sharp,0,255))
     return sharp
 
 def high_boost_f(img):
     M, N = img.shape
-    A = 1.5
+    A = 2.5
     D0 = 15
     #image and filter FFT
     f = np.fft.fftshift(np.fft.fft2(img))
@@ -146,7 +145,7 @@ def high_boost_f(img):
     for u in range(0, M):
         for v in range(0, N):
             D = (((u - M/2)**2) + ((v - N/2)**2))**0.5
-            new_image[u, v] = A * f[u, v] + f[u, v] - f[u, v] * np.exp(-(D**2)/(2*(D0**2)))
+            new_image[u, v] = (A-1) * f[u, v] + f[u, v] - f[u, v] * np.exp(-(D**2)/(2*(D0**2)))
     new_image = np.fft.ifftshift(new_image)
     #image iFFT
     new_image = np.fft.ifft2(new_image)
